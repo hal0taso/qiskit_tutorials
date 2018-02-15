@@ -7,4 +7,4 @@ First, install `qiskit` via pip3.
 $ sudo pip3 install qiskit
 ```
 
-Second, Just do it !!
+Next, Just do it !!
