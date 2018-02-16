@@ -115,3 +115,26 @@ print(circuit.measure(quantum_r[0], classical_r[0]),
 QASM_source = qp.get_qasm('Circuit')
 
 print(QASM_source)
+
+import os
+import shutil
+from qiskit.tools.visualization import latex_drawer
+import pdf2image
+
+def circuitImage(circuit, basis="u1,u2,u3,cx"):
+    """Obtain the circuit in image format
+    Note: Requires pdflatex installed (to compile Latex)
+    Note: Required pdf2image Python package (to display pdf as image)
+    """
+    filename='circuit'
+    tmpdir='tmp/'
+    if not os.path.exists(tmpdir):
+        os.makedirs(tmpdir)
+    latex_drawer(circuit, tmpdir+filename+".tex", basis=basis)
+    os.system("pdflatex -output-directory {} {}".format(tmpdir, filename+".tex"))
+    images = pdf2image.convert_from_path(tmpdir+filename+".pdf")
+    shutil.rmtree(tmpdir)
+    return images[0]
+
+basis="u1,u2,u3,cx,x,y,z,h,s,t,rx,ry,rz"
+circuitImage(circuit, basis)
