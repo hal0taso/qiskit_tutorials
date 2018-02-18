@@ -9,26 +9,25 @@ from qiskit import QuantumProgram
 import Qconfig
 
 
-## Creating Programs :
+# Creating Programs :
 # create your first QuantumProgram object instance
 qp = QuantumProgram()
 
 
-## Creating Registers :
+# Creating Registers :
 # create your first Quantum Register called "qr" with 2 qubits
 qr = qp.create_quantum_register('qr', 2)
 # create your first Classical Register called "cr" with 2 bits
 cr = qp.create_classical_register('cr', 2)
 
 
-## Creating Circuits
+# Creating Circuits
 # create your first Quantum Circuit called "qc" involving your Quantum Register "qr"
 # and your Classical Register "cr"
 qc = qp.create_circuit('Circuit', [qr], [cr])
 
 
-
-## another option for creating your QuantumProgram instance: 
+# another option for creating your QuantumProgram instance:
 Q_SPECS = {
     'circuits': [{
         'name': 'Circuit',
@@ -46,8 +45,7 @@ Q_SPECS = {
 qp = QuantumProgram(specs=Q_SPECS)
 
 
-
-## Get the components:
+# Get the components:
 # get the circuit by Name
 circuit = qp.get_circuit('Circuit')
 
@@ -57,7 +55,7 @@ quantum_r = qp.get_quantum_register('qr')
 # get the Classical Register by Name
 classical_r = qp.get_classical_register('cr')
 
-## Building your Program: Add Gates to your Circuit !!
+# Building your Program: Add Gates to your Circuit !!
 # Pauli X gate to qubit 1 in the Quantum Register "qr"
 circuit.x(quantum_r[1])
 
@@ -104,7 +102,7 @@ circuit.ry(0.2, quantum_r[1])
 circuit.rz(0.2, quantum_r[2])
 
 
-## Classical if, from qubit2 gate Z to classical bit 1
+# Classical if, from qubit2 gate Z to classical bit 1
 # circuit.z(quantum_r[2]).c_if(classical_r, 0)
 
 # measure gate drom qubit 0 to classical bit 0
@@ -121,20 +119,32 @@ import shutil
 from qiskit.tools.visualization import latex_drawer
 import pdf2image
 
+
 def circuitImage(circuit, basis="u1,u2,u3,cx"):
     """Obtain the circuit in image format
     Note: Requires pdflatex installed (to compile Latex)
     Note: Required pdf2image Python package (to display pdf as image)
     """
-    filename='circuit'
-    tmpdir='tmp/'
+    filename = 'circuit'
+    tmpdir = 'tmp/'
     if not os.path.exists(tmpdir):
         os.makedirs(tmpdir)
-    latex_drawer(circuit, tmpdir+filename+".tex", basis=basis)
-    os.system("pdflatex -output-directory {} {}".format(tmpdir, filename+".tex"))
-    images = pdf2image.convert_from_path(tmpdir+filename+".pdf")
+    latex_drawer(circuit, tmpdir + filename + ".tex", basis=basis)
+    os.system("pdflatex -output-directory {} {}".format(tmpdir, filename + ".tex"))
+    images = pdf2image.convert_from_path(tmpdir + filename + ".pdf")
     shutil.rmtree(tmpdir)
     return images[0]
 
-basis="u1,u2,u3,cx,x,y,z,h,s,t,rx,ry,rz"
-circuitImage(circuit, basis)
+
+basis = "u1,u2,u3,cx,x,y,z,h,s,t,rx,ry,rz"
+# circuitImage(circuit, basis)
+
+## Compile and Run or Execute
+# First we need to choose the backend. Lets start with the local simulator
+backend = 'local_qasm_simulator'
+circuits = ['Circuit']  # Group of circuits to execute
+
+# Next we need to compile the circuits into a quantum object which we call qobj
+qobj = qp.compile(circuits, backend)  # Compile your program
+
+# Then you can run your program. Using wait and timeout we can check the execution result every 2 seconds and timeout if the job is not run in 240 seconds.
