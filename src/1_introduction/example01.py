@@ -148,4 +148,50 @@ circuits = ['Circuit']  # Group of circuits to execute
 # Next we need to compile the circuits into a quantum object which we call qobj
 qobj = qp.compile(circuits, backend)  # Compile your program
 
-# Then you can run your program. Using wait and timeout we can check the execution result every 2 seconds and timeout if the job is not run in 240 seconds.
+# Then you can run your program.
+#
+# Using wait and timeout we can check the execution result every 2 seconds
+# and timeout if the job is not run in 240 seconds.
+result = qp.run(qobj, wait=2, timeout=240)
+print(result)
+
+## Result
+# you can access the result via the function `get_counts('name)`
+
+print(result.get_counts('Circuit'))
+
+
+ran_qasm = result.get_ran_qasm('Circuit')
+
+print(ran_qasm)
+
+# You can use
+# `qp.execute(circuits)
+# to combine the compile and run in a single step.
+
+out = qp.execute(circuits, backend, wait=2, timeout=240)
+print(out)
+
+## Execute on a Real Device
+qp.set_api(Qconfig.APItoken, Qconfig.config['url']) # set the APIToken and API url
+real_device_backend = [
+    backend for backend in qp.online_devices() if qp.get_backend_configuration(backend)['n_qubits'] == 5 and qp.get_backend_status(backend)['available'] == True
+]
+
+print(qp.online_devices())
+
+for backend in qp.online_devices():
+    print(qp.get_backend_configuration(backend))
+    print(qp.get_backend_status(backend))
+# find and appropriate real device backend that your APIToken has access to run that has 5 qubits and is available
+print(real_device_backend)
+backend = real_device_backend[0] # Backend where you execute your programl in this case, on the real Quatum Chip online
+circuits = ['Circuit'] # Group of circuits to execute
+shots = 1024 # Number of shots to run the program (experiment); maximum is 8192 shots.
+max_credits = 3 # Maximu number of credits to spend on executions.
+
+result_real = qp.execute(circuits, backend=backend, shots=shots, max_credits=max_credits, wait=10, timeout=240)
+
+result_real.get_counts('Circuit')
+
+
